@@ -49,29 +49,18 @@ class Brain:
 
         try:
             genai.configure(api_key=self.api_key)
-            
-            # --- AUTO-DISCOVERY: SEE WHAT MODELS ARE ACTUALLY AVAILABLE ---
-            self.available_models = []
-            try:
-                for m in genai.list_models():
-                    if 'generateContent' in m.supported_generation_methods:
-                        self.available_models.append(m.name)
-                print(f"   [SYSTEM] Available Models: {self.available_models}")
-            except Exception as e:
-                print(f"   [SYSTEM] Could not list models: {e}")
-
         except Exception as e:
             st.error(f"🚨 Configuration Error: {e}")
         
         self.current_persona = PERSONAS.get(role_id, PERSONAS["1"])
         self.memory = SmartMemory()
 
-        # PRIORITY LIST: Try the best ones, fall back to "gemini-pro" (the classic)
+        # --- THE GOLDEN LIST (Taken directly from your server logs) ---
         self.model_priority = [
-            'gemini-1.5-flash',
-            'gemini-1.5-pro',
-            'gemini-1.0-pro', # <--- Added the reliable fallback
-            'gemini-pro'      # <--- The original classic
+            'gemini-2.5-flash',       # High speed, new generation
+            'gemini-2.0-flash',       # Reliable fallback
+            'gemini-flash-latest',    # Catch-all for latest
+            'gemini-3-flash-preview', # Cutting edge
         ]
     
     def think(self, user_input):
@@ -89,19 +78,23 @@ class Brain:
         
         for model_name in self.model_priority:
             try:
-                # Clean up model name (sometimes API needs 'models/' prefix, sometimes not)
-                # We try it as is first.
-                model = genai.GenerativeModel(model_name=model_name)
+                # We try both "models/" prefix and without it to be safe
+                target_model = model_name
+                if not target_model.startswith("models/"):
+                     # Some APIs require the prefix, some hate it. We try to be smart.
+                     pass 
+
+                model = genai.GenerativeModel(model_name=target_model)
                 response = model.generate_content(full_prompt)
                 return response.text.strip()
             except Exception as e:
-                # If it fails, we just silently try the next one
-                print(f"   [DEBUG] {model_name} failed. Trying next...")
-                continue 
+                # If "gemini-2.5-flash" fails, try "models/gemini-2.5-flash"
+                try:
+                    model = genai.GenerativeModel(model_name=f"models/{model_name}")
+                    response = model.generate_content(full_prompt)
+                    return response.text.strip()
+                except:
+                    print(f"   [DEBUG] {model_name} failed. Trying next...")
+                    continue 
         
-        # If ALL failed, print the list of what IS available so we can debug
-        st.error(f"⚠️ System Offline. I tried these models: {self.model_priority} but they all failed.")
-        if self.available_models:
-             st.info(f"ℹ️ The server says only these models are available: {self.available_models}")
-        
-        return "System Offline. Please check the API Key and Model availability."
+        return "System Offline. All models failed to respond."
