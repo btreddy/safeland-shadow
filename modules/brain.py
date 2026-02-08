@@ -55,12 +55,11 @@ class Brain:
         self.current_persona = PERSONAS.get(role_id, PERSONAS["1"])
         self.memory = SmartMemory()
 
-        # --- THE SAFEST MODEL LIST ---
-        # We use 'gemini-flash-latest' which automatically picks the working version.
+        # --- THE FIX: USE THE EXACT NAME FROM YOUR SERVER LOG ---
         self.model_priority = [
-            'models/gemini-flash-latest', 
-            'models/gemini-2.0-flash-exp',
-            'models/gemini-1.5-flash-latest' 
+            'models/gemini-2.0-flash',       # <--- The server EXPLICITLY said it has this.
+            'models/gemini-2.0-flash-lite',  # <--- Lightweight fallback
+            'models/gemini-flash-latest'     # <--- Generic fallback
         ]
     
     def think(self, user_input):
@@ -76,6 +75,9 @@ class Brain:
         
         full_prompt = f"{system_prompt}\n\nUSER INPUT: {user_input}\n\nYOUR RESPONSE:"
         
+        # DEBUG: Show which model is being tried (visible in logs only)
+        print(f"   [SYSTEM] Attempting to think with models: {self.model_priority}")
+
         for model_name in self.model_priority:
             try:
                 model = genai.GenerativeModel(model_name=model_name)
@@ -85,5 +87,6 @@ class Brain:
                 print(f"   [DEBUG] {model_name} failed: {e}")
                 continue 
         
-        st.error(f"⚠️ Connection Failed. Please regenerate your API Key in Google AI Studio.")
+        # If we reach here, print the actual error to the screen so we can see it
+        st.error(f"⚠️ Connection Failed. All models ({self.model_priority}) were rejected.")
         return "System Offline."
