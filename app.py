@@ -20,7 +20,7 @@ st.markdown("""
 # --- SIDEBAR (HIDDEN OR MINIMAL) ---
 # We removed the Radio Buttons so users can't switch roles.
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712035.png", width=80)
+    st.image("assets/logo.png", width=120)
     st.title("Safeland Console")
     st.caption("Satellite-Verified Intelligence")
     
