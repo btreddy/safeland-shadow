@@ -6,3 +6,4 @@ numpy
 pypdf
 beautifulsoup4
 requests
+youtube-transcript-api
