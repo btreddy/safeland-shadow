@@ -1,5 +1,4 @@
 import os
-import time
 import google.generativeai as genai
 from dotenv import load_dotenv
 from modules.memory import SmartMemory
@@ -44,24 +43,35 @@ class Brain:
             except:
                 pass
 
-        # 3. If still no key, print a visible error
         if not self.api_key:
             st.error("🚨 CRITICAL ERROR: API Key not found! Check 'secrets.toml' in Streamlit.")
             return
 
         try:
             genai.configure(api_key=self.api_key)
+            
+            # --- AUTO-DISCOVERY: SEE WHAT MODELS ARE ACTUALLY AVAILABLE ---
+            self.available_models = []
+            try:
+                for m in genai.list_models():
+                    if 'generateContent' in m.supported_generation_methods:
+                        self.available_models.append(m.name)
+                print(f"   [SYSTEM] Available Models: {self.available_models}")
+            except Exception as e:
+                print(f"   [SYSTEM] Could not list models: {e}")
+
         except Exception as e:
             st.error(f"🚨 Configuration Error: {e}")
         
         self.current_persona = PERSONAS.get(role_id, PERSONAS["1"])
         self.memory = SmartMemory()
 
-        # SWITCHED TO STABLE MODEL FIRST
+        # PRIORITY LIST: Try the best ones, fall back to "gemini-pro" (the classic)
         self.model_priority = [
-            'gemini-1.5-flash',      
+            'gemini-1.5-flash',
             'gemini-1.5-pro',
-            'gemini-2.0-flash-exp'
+            'gemini-1.0-pro', # <--- Added the reliable fallback
+            'gemini-pro'      # <--- The original classic
         ]
     
     def think(self, user_input):
@@ -79,13 +89,19 @@ class Brain:
         
         for model_name in self.model_priority:
             try:
+                # Clean up model name (sometimes API needs 'models/' prefix, sometimes not)
+                # We try it as is first.
                 model = genai.GenerativeModel(model_name=model_name)
                 response = model.generate_content(full_prompt)
                 return response.text.strip()
             except Exception as e:
-                # --- THIS IS THE DEBUGGER ---
-                # It will print the REAL error on your website so we can see it.
-                st.error(f"⚠️ Model '{model_name}' failed. Reason: {e}")
+                # If it fails, we just silently try the next one
+                print(f"   [DEBUG] {model_name} failed. Trying next...")
                 continue 
         
-        return "System Offline. All models failed to respond."
+        # If ALL failed, print the list of what IS available so we can debug
+        st.error(f"⚠️ System Offline. I tried these models: {self.model_priority} but they all failed.")
+        if self.available_models:
+             st.info(f"ℹ️ The server says only these models are available: {self.available_models}")
+        
+        return "System Offline. Please check the API Key and Model availability."
