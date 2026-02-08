@@ -55,12 +55,12 @@ class Brain:
         self.current_persona = PERSONAS.get(role_id, PERSONAS["1"])
         self.memory = SmartMemory()
 
-        # --- THE GOLDEN LIST (Taken directly from your server logs) ---
+        # --- THE SAFEST MODEL LIST ---
+        # We use 'gemini-flash-latest' which automatically picks the working version.
         self.model_priority = [
-            'gemini-2.5-flash',       # High speed, new generation
-            'gemini-2.0-flash',       # Reliable fallback
-            'gemini-flash-latest',    # Catch-all for latest
-            'gemini-3-flash-preview', # Cutting edge
+            'models/gemini-flash-latest', 
+            'models/gemini-2.0-flash-exp',
+            'models/gemini-1.5-flash-latest' 
         ]
     
     def think(self, user_input):
@@ -78,23 +78,12 @@ class Brain:
         
         for model_name in self.model_priority:
             try:
-                # We try both "models/" prefix and without it to be safe
-                target_model = model_name
-                if not target_model.startswith("models/"):
-                     # Some APIs require the prefix, some hate it. We try to be smart.
-                     pass 
-
-                model = genai.GenerativeModel(model_name=target_model)
+                model = genai.GenerativeModel(model_name=model_name)
                 response = model.generate_content(full_prompt)
                 return response.text.strip()
             except Exception as e:
-                # If "gemini-2.5-flash" fails, try "models/gemini-2.5-flash"
-                try:
-                    model = genai.GenerativeModel(model_name=f"models/{model_name}")
-                    response = model.generate_content(full_prompt)
-                    return response.text.strip()
-                except:
-                    print(f"   [DEBUG] {model_name} failed. Trying next...")
-                    continue 
+                print(f"   [DEBUG] {model_name} failed: {e}")
+                continue 
         
-        return "System Offline. All models failed to respond."
+        st.error(f"⚠️ Connection Failed. Please regenerate your API Key in Google AI Studio.")
+        return "System Offline."
