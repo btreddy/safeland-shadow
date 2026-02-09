@@ -26,10 +26,11 @@ def main():
     print("2. Safeland Console 🌍 (Business Dev: Agents/Investors)")
     print("3. SaaS Architect 💻 (Software Development)")
     print("4. Pharma Rep 💊 (Medical Info)")
+    print("5. Demo Rep 💊 (folder and web Info)")
     
-    role_choice = input(Fore.WHITE + "\nEnter number (1-4): ").strip()
+    role_choice = input(Fore.WHITE + "\nEnter number (1-5): ").strip()
     # Default to 1 if they type garbage
-    if role_choice not in ["1", "2", "3", "4"]:
+    if role_choice not in ["1", "2", "3", "4", "5"]:
         role_choice = "1" 
     
     try:
