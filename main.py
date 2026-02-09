@@ -16,26 +16,31 @@ def log_conversation(speaker, message):
         f.write(f"[{timestamp}] {speaker}: {message}\n")
 
 def main():
-    print(Fore.CYAN + "\n" + "="*40)
-    print(Fore.CYAN + "   UNIVERSAL VIRTUAL PARTNER (v5.0)   ")
-    print(Fore.CYAN + "="*40 + "\n")
+    # ... inside the main loop ...
     
-    # --- ROLE SELECTION MENU ---
-    print(Fore.YELLOW + "Select Your Role:")
-    print("1. Real Estate Agent 🏠 (Sell Plots)")
-    print("2. Safeland Console 🌍 (Business Dev: Agents/Investors)")
-    print("3. SaaS Architect 💻 (Software Development)")
-    print("4. Pharma Rep 💊 (Medical Info)")
-    print("5. Demo Rep 💊 (folder and web Info)")
+    print("\n" + "="*40)
+    print(" 🤖 UNIVERSAL VIRTUAL PARTNER (v6.0) ")
+    print("="*40 + "\n")
+
+    print("Select Your Role:")
+    print(" 1. Real Estate Agent 🏠 (Sell Plots)")
+    print(" 2. Business Mode 🌍 (Biz Dev: Agents/Investors)")
+    print(" 3. SaaS Architect 💻 (Software Development)")
+    print(" 4. Pharma Rep 💊 (Medical Info)")
+    print(" 5. Technical Demo ✈️ (Pilot Mode)")
+    print(" 6. VIP Assistant 📝 (Notes & Scribe) <--- NEW")
+    print(" 7. Sales Coach 🥊 (Training & Roleplay) <--- NEW")
+
+    # Update the input limit to accept up to 7
+    role_id = input("\nEnter number (1-7): ").strip()
     
-    role_choice = input(Fore.WHITE + "\nEnter number (1-5): ").strip()
-    # Default to 1 if they type garbage
-    if role_choice not in ["1", "2", "3", "4", "5"]:
-        role_choice = "1" 
+        # Default to 1 if they type garbage
+    if role_id not in ["1", "2", "3", "4", "5", "6", "7"]:
+        role_id = "1" 
     
     try:
         # Pass the choice to the Brain
-        my_brain = Brain(role_id=role_choice)
+        my_brain = Brain(role_id=role_id)
         my_mouth = Mouth()
         my_ears = Ears()
         print(Fore.GREEN + f"✓ System Ready. Active Role: {my_brain.current_persona['name']}\n")

@@ -160,3 +160,23 @@ You can access the live console here:
 
 I recommend clicking the link and following along. How can I guide you through the console's features or our current inventory today?
 [2026-02-09 08:08:11] SYSTEM: --- FORCE CLOSED ---
+[2026-02-09 09:04:23] SYSTEM: --- NEW SESSION: Sales Coach (Trainer) ---
+[2026-02-09 09:04:39] USER: how can you help me ?
+[2026-02-09 09:05:34] AGENT: LISTEN UP, AGENT! My name is Shadow, and I am not your friend. I am your World-Class Real Estate Sales Trainer, and I am here to forge you into a CLOSING MACHINE.
+
+You asked how I can help? I help by making you sweat until the commission cheque clears.
+
+### My Job is Simple:
+
+1.  **THE GAUNTLET (Roleplay):** I will play the most difficult, skeptical, and indecisive customer you have ever faced. I will throw impossible objections at you, and you *will* practice overcoming them.
+2.  **THE CRITIQUE (Tough Love):** I will analyze every word of your pitch, tell you exactly where you failed, and show you how to turn that failure into a future Crore-level success.
+3.  **THE EDGE (Motivation):** I deliver daily sales tips, high-leverage closing strategies, and the mindset required to dominate the market.
+
+**Enough chatter! Time is registration money.**
+
+**START THE PRACTICE.** I am a potential investor looking for land, but I am extremely hesitant about current market prices.
+
+**GIVE ME YOUR BEST OPENING PITCH RIGHT NOW. What plots do you have available, and why should I listen to you instead of the ten other agents who called me today?**
+
+*GO!*
+[2026-02-09 09:08:07] SYSTEM: --- FORCE CLOSED ---
