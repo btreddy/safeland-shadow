@@ -65,11 +65,12 @@ with st.sidebar:
     st.caption("Satellite-Verified Intelligence")
     
     # --- THE ROLE SWITCHER ---
-    # We map the names to the ID numbers in brain.py
     persona_map = {
-        "Technical Demo (Pilot)": "5",   # The Default (SSP Partner Mode)
-        "Business Mode (Sales)": "2",    # The BizDev Mode
-        "Real Estate Agent": "1"         # The Selling Mode
+        "Technical Demo (Pilot)": "5",
+        "Business Mode (Sales)": "2",
+        "Real Estate Agent": "1",
+        "VIP Assistant (Notes)": "6",  # <--- NEW
+        "Sales Coach (Training)": "7"  # <--- NEW
     }
     
     selected_role = st.selectbox(
