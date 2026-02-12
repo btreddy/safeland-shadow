@@ -180,3 +180,79 @@ You asked how I can help? I help by making you sweat until the commission cheque
 
 *GO!*
 [2026-02-09 09:08:07] SYSTEM: --- FORCE CLOSED ---
+[2026-02-09 11:20:13] SYSTEM: --- NEW SESSION: Real Estate Agent ---
+[2026-02-09 11:20:35] USER: WHAT DO YOU KNOW ABOUT SSP
+[2026-02-09 11:20:59] AGENT: I do not have specific data on "SSP" within our current active portfolio. My focus is exclusively on our premium ventures: "Star City" in Shadnagar and "Green Valley" in Chevella.
+[2026-02-09 11:21:03] SYSTEM: --- FORCE CLOSED ---
+[2026-02-09 11:22:07] SYSTEM: --- NEW SESSION: Console Pilot (Demo) ---
+[2026-02-09 11:22:18] USER: what do you know about ssp private limited
+[2026-02-09 11:23:08] AGENT: I am Shadow, the Technical Pilot for the Safeland Intelligence Console.
+
+SSP Private Limited is our strategic partner currently utilizing this console during its Live Beta Phase. My role is to guide you through the real estate data and features we provide for their ongoing ventures.
+
+You can access the live console here: https://maps.safelanddeal.com
+
+I highly encourage you to click the link and follow along as I demonstrate the platform's capabilities. What would you like to see first?
+[2026-02-09 11:25:17] USER: what are all projects ssp have
+[2026-02-09 11:25:41] AGENT: The Safeland Intelligence Console shows that SSP Private Limited currently has two active ventures in the Hyderabad region:
+
+1.  **Star City (Shadnagar):**
+    *   **Type:** DTCP Approved Open Plots.
+    *   **Location:** Shadnagar, near the highway.
+    *   **Price:** 12,500 INR per sq yard.
+    *   **Key Feature:** Located strategically near the proposed Regional Ring Road (RRR).
+
+2.  **Green Valley (Chevella):**
+    *   **Type:** Farm Land (Dharani Portal Registration).
+    *   **Location:** Chevella.
+    *   **Price:** 6,500 INR per sq yard.
+    *   **Restriction:** Minimum purchase is 5 Guntas (600 sq yards).
+
+I encourage you to click the link below to view these project locations and layouts directly on the map console:
+
+You can access the live console here: https://maps.safelanddeal.com
+[2026-02-09 11:34:15] USER: hi what do you know about ssp
+[2026-02-09 11:34:54] AGENT: Hello. I am Shadow, the Technical Pilot of the Safeland Intelligence Console, which is currently in its live beta phase in partnership with **SSP Private Limited**.
+
+My role is to guide you through the features of this console, which is designed to provide real-time intelligence on our available land ventures.
+
+You can access the live console here: **https://maps.safelanddeal.com**
+
+I encourage you to click the link and open the map so we can walk through the data and features together. What would you like to explore first?
+[2026-02-09 11:35:06] USER: how can you guide me to go to safeland console
+[2026-02-09 11:35:38] AGENT: Hello, I'm Shadow, the Technical Pilot for the Safeland Intelligence Console, run in partnership with SSP Private Limited.
+
+I can guide you through the features right now.
+
+You can access the live console here: **https://maps.safelanddeal.com**
+
+Please click the link and we can start navigating the intelligence features together. What are you looking to analyze first?
+[2026-02-09 11:35:44] USER: what is the special of
+[2026-02-09 11:36:28] AGENT: I am Shadow, the Technical Pilot.
+
+The specialty of the **Safeland Intelligence Console** is providing a live, geo-spatial overview of the inventory for SSP Private Limited's real estate ventures. It acts as a real-time digital dashboard showing plot status directly on the map.
+
+We currently track projects like **Star City** (DTCP approved plots near RRR in Shadnagar) and **Green Valley** (Farm Land in Chevella).
+
+You can access the live console here: **https://maps.safelanddeal.com**
+
+Click the link and follow along. We can start by reviewing the live availability in Star City.
+[2026-02-09 11:36:35] USER: how many plates are available in star city
+[2026-02-09 11:36:59] AGENT: That's a quick data pull.
+
+Based on the inventory feed, there are currently **10 plots available** in Star City.
+
+You can access the live console here: https://maps.safelanddeal.com. I highly encourage you to click it and follow along to view the exact locations and sizes on the map.
+[2026-02-09 11:37:09] USER: what is the price what is the price in star city
+[2026-02-09 11:37:47] AGENT: Hello! I'm Shadow, the Technical Pilot.
+
+For our **Star City** venture in Shadnagar (DTCP Approved), the price is set at **12,500 INR per square yard**.
+
+We currently have plot sizes of 150, 200, and 300 sq yards available.
+
+You can access the live console here to visualize the inventory: https://maps.safelanddeal.com. I encourage you to click it and follow along.
+[2026-02-09 11:43:39] SYSTEM: --- FORCE CLOSED ---
+[2026-02-10 09:16:31] SYSTEM: --- NEW SESSION: Shadow-Dev (BaaS Architect) ---
+[2026-02-10 09:16:45] USER: can you hear me
+[2026-02-10 09:16:55] AGENT: I am having trouble connecting. Please check the API key.
+[2026-02-10 09:24:36] SYSTEM: --- FORCE CLOSED ---

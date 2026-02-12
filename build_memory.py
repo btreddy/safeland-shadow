@@ -53,47 +53,45 @@ embeddings = SlowEmbeddings(
 )
 
 # --- 4. LOAD DOCUMENTS WITH ROLL CALL ---
-folder_path = "library"
-if not os.path.exists(folder_path):
-    os.makedirs(folder_path)
-    print(f"📂 Created '{folder_path}'.")
-    exit()
-
-print(f"📂 Scanning '{folder_path}'...")
-docs = []
-
-# Helper function to print filenames
-def load_and_log(loader, name):
-    try:
-        documents = loader.load()
-        for doc in documents:
-            # FIX 2: This prints the filename of every file found
-            filename = os.path.basename(doc.metadata.get('source', 'Unknown'))
-            print(f"   👀 Found {name}: {filename}")
-        return documents
-    except Exception as e:
-        print(f"⚠️ {name} Error: {e}")
+# --- 4. TARGETED LOAD (Replaces Lines 56-80) ---
+def get_clean_docs(role_folder):
+    # This forces the scan to stay ONLY in the specific subfolder (e.g., data/real_estate)
+    path = os.path.join("data", role_folder)
+    
+    if not os.path.exists(path):
+        print(f"⚠️ Warning: Folder {path} not found.")
         return []
 
-# Load Text Files
-txt_loader = DirectoryLoader(folder_path, glob="**/*.txt", loader_cls=TextLoader, loader_kwargs={'encoding': 'utf-8'})
-docs.extend(load_and_log(txt_loader, "Text File"))
+    # FIX: Use "./*.pdf" instead of "**/*.pdf" to stop recursive duplicate scanning
+    pdf_loader = DirectoryLoader(path, glob="./*.pdf", loader_cls=PyPDFLoader)
+    txt_loader = DirectoryLoader(path, glob="./*.txt", loader_cls=TextLoader)
+    
+    loaded_docs = pdf_loader.load() + txt_loader.load()
+    
+    # Log found files once to verify the fix
+    for doc in loaded_docs:
+        fname = os.path.basename(doc.metadata.get('source', 'Unknown'))
+        print(f" ✅ Found unique file: {fname}")
+        
+    return loaded_docs
 
-# Load PDF Files
-pdf_loader = DirectoryLoader(folder_path, glob="**/*.pdf", loader_cls=PyPDFLoader)
-docs.extend(load_and_log(pdf_loader, "PDF File"))
+# --- 5. START BUILD (Targeted Folders) ---
+role = "real_estate"  # Change to "baas" to build your tech brain
+docs = get_clean_docs(role)
 
-if not docs:
-    print("⚠️ No files found. Memory not updated.")
-    exit()
-
-print(f"📄 Total Documents: {len(docs)}. Starting Build process...")
-
-# --- 5. BUILD & SAVE ---
-try:
-    vector_store = FAISS.from_documents(docs, embeddings)
-    vector_store.save_local("faiss_index")
-    print("\n🎉 SUCCESS! Memory Updated.")
-    print("   -> 'faiss_index' folder created.")
-except Exception as e:
-    print(f"\n❌ Failed: {e}")
+# --- 6. BUILD & SAVE TO SPECIALIST FOLDER ---
+if docs:
+    try:
+        print(f"🧠 Building Specialist Brain for: {role}...")
+        vector_store = FAISS.from_documents(docs, embeddings)
+        
+        # Save to the specific folder your brain.py expects
+        save_path = f"faiss_index_data_{role}"
+        vector_store.save_local(save_path)
+        
+        print(f"\n✨ SUCCESS! {role.upper()} Memory Updated.")
+        print(f"   -> '{save_path}' folder created/updated.")
+    except Exception as e:
+        print(f"\n❌ Failed to build index: {e}")
+else:
+    print("❌ Build aborted: No documents found in the selected library.")

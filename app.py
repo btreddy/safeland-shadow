@@ -1,136 +1,38 @@
 import streamlit as st
-from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from modules.brain import Brain
+from PIL import Image
 
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="Safeland Intelligence",
-    page_icon="🌍",
-    layout="centered"
-)
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="Safeland Intelligence",
-    page_icon="🌍",
-    layout="centered"
-)
+st.set_page_config(page_title="Safeland Console", layout="wide")
 
-# --- 🧹 FORCE RESET (Add this block) ---
-# If the user refreshes, we want to make sure we re-load the correct brain
-if "reset_trigger" not in st.session_state:
-    st.session_state.clear()
-    st.session_state["reset_trigger"] = True
-# ---------------------------------------
-# --- CSS FOR CLEAN LOOK ---
-st.markdown("""
-    <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
-
-# --- 1. LOAD SHADOW'S BRAIN (Fixed Model Name) ---
-@st.cache_resource
-def load_memory():
-    # We use the EXACT name your diagnostic script found earlier
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/gemini-embedding-001", 
-        google_api_key=st.secrets["GEMINI_API_KEY"]
-    )
-    
-    # Load the Vector Store
-    try:
-        vector_store = FAISS.load_local(
-            "faiss_index", 
-            embeddings, 
-            allow_dangerous_deserialization=True
-        )
-        return vector_store
-    except Exception as e:
-        st.error(f"⚠️ Brain Damage: Could not load memory. {e}")
-        return None
-
-# Initialize the Memory
-vector_store = load_memory()
-
-
-# --- MAIN APP LOGIC ---
-
-# --- SIDEBAR (RESTORED) ---
+# Sidebar
 with st.sidebar:
-    st.image("assets/logo.png", width=120)
-    st.title("Safeland Console")
-    st.caption("Satellite-Verified Intelligence")
+    try:
+        st.image(Image.open("assets/logo.png"), width=150)
+    except:
+        st.title("Safeland Console")
     
-    # --- THE ROLE SWITCHER ---
-    persona_map = {
-        "Technical Demo (Pilot)": "5",
-        "Business Mode (Sales)": "2",
-        "Real Estate Agent": "1",
-        "VIP Assistant (Notes)": "6",  # <--- NEW
-        "Sales Coach (Training)": "7"  # <--- NEW
-    }
-    
-    selected_role = st.selectbox(
-        "Select Mode:", 
-        list(persona_map.keys()),
-        index=0 # Defaults to 'Technical Demo'
-    )
-    
-    # Get the ID (e.g., "5") based on the name
-    role_id = persona_map[selected_role]
+    st.markdown("---")
+    role_options = {"1": "Shadow-Dev (BaaS Architect)", "2": "Shadow-Land (RE Intelligence)"}
+    role_id = st.selectbox("Select Active Engine:", options=list(role_options.keys()), format_func=lambda x: role_options[x])
 
-# --- INITIALIZE BRAIN ---
-# Pass the selected ID to the Brain
-brain = Brain(role_id=role_id)
+# Ensure Brain reloads when Role changes
+if "current_role" not in st.session_state or st.session_state.current_role != role_id:
+    st.session_state.brain = Brain(role_id=role_id)
+    st.session_state.current_role = role_id
+    st.session_state.messages = []
 
-# Greet the User
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "Console Active. I am Shadow, your Technical Pilot. I can guide you through the satellite verification features or explain the software. What would you like to see?"}
-    ]
+# Header
+active_name = st.session_state.brain.current_persona['name']
+st.info(f"🏷️ **Active ID:** {active_name} | **Status:** Secured & Isolated")
 
-# Display Chat History
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# Chat
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
 
-# 3. THE CONNECTED CHAT LOOP (Fixed Logic)
-if prompt := st.chat_input("Ask about features, maps, or verification..."):
-    # Show User Message
-    with st.chat_message("user"):
-        st.markdown(prompt)
+if prompt := st.chat_input("Ask Shadow..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Generate Response
-    with st.chat_message("assistant"):
-        with st.spinner("Analyzing Database..."):
-            
-            # --- THE MISSING WIRE: RETRIEVAL ---
-            # We search the memory BEFORE asking the Brain
-            context_text = ""
-            if vector_store:
-                try:
-                    # Find 3 relevant snippets
-                    docs = vector_store.similarity_search(prompt, k=3)
-                    context_text = "\n\n".join([d.page_content for d in docs])
-                except Exception as e:
-                    context_text = ""
-            
-            # We combine the User Question + The Found Data
-            # This "tricks" the Brain into knowing the answer
-            augmented_prompt = f"""
-            CONTEXT FROM DATABASE:
-            {context_text}
-            
-            USER QUESTION:
-            {prompt}
-            """
-            
-            # Send the combined package to the Brain
-            response = brain.think(augmented_prompt)
-            st.markdown(response)
+    with st.chat_message("user"): st.markdown(prompt)
     
+    response = st.session_state.brain.think(prompt)
     st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.chat_message("assistant"): st.markdown(response)

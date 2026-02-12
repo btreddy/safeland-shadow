@@ -1,114 +1,49 @@
-import sys
-import datetime
-from colorama import init, Fore, Style
+import streamlit as st
 from modules.brain import Brain
-from modules.mouth import Mouth
-from modules.ears import Ears
+from PIL import Image
 
-init(autoreset=True)
-DIRECT_MODE = True 
+st.set_page_config(page_title="Safeland Console", layout="wide")
 
-# --- LOGGING FUNCTION (The Secretary) ---
-def log_conversation(speaker, message):
-    """Saves the conversation to a text file with a timestamp."""
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open("meeting_log.txt", "a", encoding="utf-8") as f:
-        f.write(f"[{timestamp}] {speaker}: {message}\n")
-
-def main():
-    # ... inside the main loop ...
-    
-    print("\n" + "="*40)
-    print(" 🤖 UNIVERSAL VIRTUAL PARTNER (v6.0) ")
-    print("="*40 + "\n")
-
-    print("Select Your Role:")
-    print(" 1. Real Estate Agent 🏠 (Sell Plots)")
-    print(" 2. Business Mode 🌍 (Biz Dev: Agents/Investors)")
-    print(" 3. SaaS Architect 💻 (Software Development)")
-    print(" 4. Pharma Rep 💊 (Medical Info)")
-    print(" 5. Technical Demo ✈️ (Pilot Mode)")
-    print(" 6. VIP Assistant 📝 (Notes & Scribe) <--- NEW")
-    print(" 7. Sales Coach 🥊 (Training & Roleplay) <--- NEW")
-
-    # Update the input limit to accept up to 7
-    role_id = input("\nEnter number (1-7): ").strip()
-    
-        # Default to 1 if they type garbage
-    if role_id not in ["1", "2", "3", "4", "5", "6", "7"]:
-        role_id = "1" 
-    
+# --- 1. SIDEBAR ---
+with st.sidebar:
     try:
-        # Pass the choice to the Brain
-        my_brain = Brain(role_id=role_id)
-        my_mouth = Mouth()
-        my_ears = Ears()
-        print(Fore.GREEN + f"✓ System Ready. Active Role: {my_brain.current_persona['name']}\n")
-        
-        # Log the start
-        log_conversation("SYSTEM", f"--- NEW SESSION: {my_brain.current_persona['name']} ---")
-        
-    except Exception as e:
-        print(Fore.RED + f"Startup Error: {e}")
-        return
+        st.image(Image.open("assets/logo.png"), width=150)
+    except:
+        st.title("Safeland Console")
+    
+    st.markdown("---")
+    # In main.py, update the sidebar roles
+role_options = {
+    "1": "Shadow-Dev (BaaS Architect)",
+    "2": "Shadow-Land (Market Intelligence)" 
+} # <--- You were missing this closing bracket!
 
-    # --- MAIN LOOP ---
-    while True:
-        try:
-            print(Fore.BLUE + "---")
-            choice = input(Fore.WHITE + "You: " + Style.RESET_ALL).strip()
-            
-            final_input = ""
+role_id = st.sidebar.selectbox(
+    "Select Active Engine:", 
+    options=list(role_options.keys()), 
+    format_func=lambda x: role_options[x]
+)
 
-            # --- CHECK FOR SPECIAL COMMANDS FIRST ---
-            
-            # Command 1: Update Memory (Re-scan files)
-            if choice.lower() == 'update memory':
-                print(Fore.YELLOW + "   [SYSTEM] Updating Knowledge Base... Please wait.")
-                my_brain.memory.build_memory()
-                print(Fore.GREEN + "   [SYSTEM] Memory Updated! I have read your new files.")
-                continue # Skip the rest and go back to start
-            
-            # Command 2: Exit
-            elif choice.lower() in ['exit', 'quit']:
-                print("Goodbye.")
-                log_conversation("SYSTEM", "--- SESSION ENDED ---")
-                break
+# --- 2. ENGINE SYNC ---
+if "current_role" not in st.session_state or st.session_state.current_role != role_id:
+    st.session_state.brain = Brain(role_id=role_id)
+    st.session_state.current_role = role_id
+    st.session_state.messages = []
 
-            # Command 3: Microphone (Empty Enter)
-            elif choice == "":
-                final_input = my_ears.listen()
-                if not final_input: 
-                    continue # If no sound, loop back
-                print(Fore.YELLOW + f"  (Whisper): {final_input}")
+# --- 3. UI HEADER ---
+active_persona = st.session_state.brain.current_persona
+st.info(f"🏷️ **Active ID:** {active_persona['name']} | **Status:** Secured & Isolated")
 
-            # Command 4: Normal Text Input
-            else:
-                final_input = choice
+# --- 4. CHAT ---
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]): st.markdown(msg["content"])
 
-            # --- PROCESS THE INPUT ---
-
-            # 1. LOG USER INPUT
-            log_conversation("USER", final_input)
-
-            # 2. THINK
-            polished_response = my_brain.think(final_input)
-            
-            # 3. SHOW & SPEAK
-            print(Fore.GREEN + f"Agent: {polished_response}")
-            
-            if DIRECT_MODE:
-                my_mouth.speak(polished_response)
-            
-            # 4. LOG AGENT RESPONSE
-            log_conversation("AGENT", polished_response)
-
-        except KeyboardInterrupt:
-            print(Fore.RED + "\nForce closing...")
-            log_conversation("SYSTEM", "--- FORCE CLOSED ---")
-            sys.exit()
-        except Exception as e:
-            print(Fore.RED + f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()
+if prompt := st.chat_input("Ask Shadow..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"): st.markdown(prompt)
+    
+    with st.spinner("Shadow is thinking..."):
+        response = st.session_state.brain.think(prompt)
+    
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.chat_message("assistant"): st.markdown(response)
