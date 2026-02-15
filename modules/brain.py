@@ -8,25 +8,30 @@ from google.oauth2 import service_account
 class Brain:
     def __init__(self):
         api_key = st.secrets.get("GOOGLE_API_KEY")
+        creds = None
         
         # 1. Decode the Base64 String
         b64_str = st.secrets.get("GCP_CREDENTIALS_BASE64")
-        creds = None
         
         if b64_str:
             try:
-                # Turn the safe string back into a JSON object
+                # Decode the string
                 json_bytes = base64.b64decode(b64_str)
                 creds_info = json.loads(json_bytes.decode("utf-8"))
-                creds = service_account.Credentials.from_service_account_info(creds_info)
+                
+                # 2. CREATE CREDENTIALS WITH SCOPE (The Fix for 'invalid_scope')
+                # We explicitly tell Google: "This bot is allowed to use the Cloud Platform."
+                creds_unscoped = service_account.Credentials.from_service_account_info(creds_info)
+                creds = creds_unscoped.with_scopes(["https://www.googleapis.com/auth/cloud-platform"])
+                
             except Exception as e:
-                st.error(f"⚠️ Base64 Error: {e}")
+                st.error(f"⚠️ Auth Error: {e}")
                 st.stop()
         else:
-            st.error("⚠️ System Offline: GCP_CREDENTIALS_BASE64 is missing in Secrets!")
+            st.error("⚠️ System Offline: GCP_CREDENTIALS_BASE64 is missing!")
             st.stop()
 
-        # 2. Initialize the High-End Model
+        # 3. Initialize the High-End Model
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             google_api_key=api_key,
