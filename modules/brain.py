@@ -1,7 +1,6 @@
-import st
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
-from google.oauth2 import service_account
+import streamlit as st
 
 class Brain:
     def __init__(self):
