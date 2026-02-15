@@ -9,13 +9,14 @@ class Brain:
         api_key = st.secrets.get("GOOGLE_API_KEY")
         gcp_info = st.secrets.get("gcp_service_account")
         
+        # Security Check
         if gcp_info:
             creds = service_account.Credentials.from_service_account_info(gcp_info)
         else:
             st.error("⚠️ Service Account Info Missing in Secrets!")
             st.stop()
 
-        # 2. Initialize the High-End Model
+        # 2. Initialize the High-End Model (Gemini 2.0 Flash)
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             google_api_key=api_key,
@@ -23,7 +24,8 @@ class Brain:
             temperature=0.1
         )
         
-        # 3. DEFINE THE MISSING VARIABLE HERE
+        # 3. DEFINE THE VARIABLE EXACTLY AS 'system_instruction'
+        # This matches what the think() function is looking for below.
         self.system_instruction = (
             "You are Spark, the Senior Real Estate Expert for Safelanddeal. "
             "Your goal is to provide grounded answers based on available venture data. "
@@ -31,7 +33,7 @@ class Brain:
         )
 
     def think(self, prompt):
-        # 4. Now this line will work because the name matches above!
+        # 4. Now this line will find the variable successfully!
         combined_prompt = f"{self.system_instruction}\n\nUser Question: {prompt}"
         
         try:
