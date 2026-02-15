@@ -1,42 +1,42 @@
-import os
-import streamlit as st
+import st
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from google.oauth2 import service_account
 
 class Brain:
     def __init__(self):
-        # 1. Pull API Key from Streamlit Secrets
-        api_key = st.secrets.get("GOOGLE_API_KEY")
-        if not api_key:
-            st.error("⚠️ System Offline: GOOGLE_API_KEY missing in Cloud Secrets.")
-            st.stop()
-
-        # 2. High-End Multimodal Engine (Gemini 1.5 Flash)
+        # Using the High-End Model Configuration from your Dashboard
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
-            google_api_key=api_key,
-            temperature=0.1 # Grounded, factual responses
+            model="gemini-2.0-flash", 
+            google_api_key=st.secrets["GOOGLE_API_KEY"],
+            temperature=0.1
         )
+        self.instruction = "You are a Real Estate Expert. Use only provided venture data."
 
-        # 3. Dynamic Persona (No Hardcoding)
+    def think(self, prompt):
+        # We combine system instruction with the user prompt for stability
+        combined = f"{self.instruction}\n\nUser: {prompt}"
+        try:
+            # Strictly HumanMessage to prevent multi-turn alternation errors
+            return self.llm.invoke([HumanMessage(content=combined)]).content
+        except Exception as e:
+            return f"⚠️ Brain Error: {str(e)}"
+        
+        # Grounded Persona Instructions
         self.system_instruction = (
             "You are the Senior Real Estate Expert for Safelanddeal. "
-            "You provide grounded answers based on web pages and file storage data. "
-            "If info is missing, ask for a web link or file source. "
-            "You have authority to analyze site maps and public web content in Professional English."
+            "Analyze linked content and provided data storage. "
+            "Provide grounded answers only. If info is missing, ask for a source. "
+            "Respond in Professional English."
         )
 
-    def think(self, prompt, image_data=None):
-        # Build the multimodal 'Trekking Bag'
-        content = [{"type": "text", "text": prompt}]
-        if image_data:
-            content.append({
-                "type": "image_url",
-                "image_url": f"data:image/png;base64,{image_data}"
-            })
+    def think(self, prompt):
+        # We combine the system instruction with the prompt to prevent 400 errors
+        combined_prompt = f"{self.system_instruction}\n\nUser Question: {prompt}"
         
-        messages = [
-            SystemMessage(content=self.system_instruction),
-            HumanMessage(content=content)
-        ]
-        return self.llm.invoke(messages).content
+        # Strictly send as a HumanMessage to ensure Gemini stability
+        try:
+            response = self.llm.invoke([HumanMessage(content=combined_prompt)])
+            return response.content
+        except Exception as e:
+            return f"⚠️ Brain Offline: {str(e)}"
