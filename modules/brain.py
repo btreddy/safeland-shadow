@@ -1,36 +1,32 @@
 import streamlit as st
 import json
+import base64
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 from google.oauth2 import service_account
 
 class Brain:
     def __init__(self):
-        # 1. Load API Key
         api_key = st.secrets.get("GOOGLE_API_KEY")
         
-        # 2. Load Service Account (The Raw JSON Method)
+        # 1. Decode the Base64 String
+        b64_str = st.secrets.get("GCP_CREDENTIALS_BASE64")
         creds = None
         
-        # We look for the big text block we just saved
-        if "GCP_CREDENTIALS" in st.secrets:
+        if b64_str:
             try:
-                # json.loads handles the quotes and newlines for us!
-                creds_info = json.loads(st.secrets["GCP_CREDENTIALS"])
-                
-                # Create the credentials object
+                # Turn the safe string back into a JSON object
+                json_bytes = base64.b64decode(b64_str)
+                creds_info = json.loads(json_bytes.decode("utf-8"))
                 creds = service_account.Credentials.from_service_account_info(creds_info)
-            except json.JSONDecodeError:
-                st.error("⚠️ Secrets Error: The 'GCP_CREDENTIALS' block is not valid JSON. Check for missing commas or braces.")
-                st.stop()
             except Exception as e:
-                st.error(f"⚠️ Credential Error: {str(e)}")
+                st.error(f"⚠️ Base64 Error: {e}")
                 st.stop()
         else:
-            st.error("⚠️ System Offline: 'GCP_CREDENTIALS' secret is missing!")
+            st.error("⚠️ System Offline: GCP_CREDENTIALS_BASE64 is missing in Secrets!")
             st.stop()
 
-        # 3. Initialize the High-End Model (Gemini 2.0 Flash)
+        # 2. Initialize the High-End Model
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
             google_api_key=api_key,
@@ -38,7 +34,6 @@ class Brain:
             temperature=0.1
         )
         
-        # 4. Define the Instructions
         self.system_instruction = (
             "You are Spark, the Senior Real Estate Expert for Safelanddeal. "
             "Your goal is to provide grounded answers based on available venture data. "
