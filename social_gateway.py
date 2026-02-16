@@ -41,31 +41,40 @@ def get_spark():
 
 @app.route("/whatsapp", methods=["GET", "POST"])
 def whatsapp_handler():
+    # 1. Handle Meta's Verification (This part is already working!)
     if request.method == "GET":
-        # ... (Your existing verification logic is perfect)
-        return challenge, 200
+        mode = request.args.get("hub.mode")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+        if mode == "subscribe" and token == "Spark2026":
+            return challenge, 200
+        return "Failed", 403
 
+    # 2. Handle Real Messages (This is where the '3ms' skip happens)
     data = request.get_json()
+    
+    # Check if this is a real message from a user
     if data and "entry" in data:
         for entry in data["entry"]:
             for change in entry.get("changes", []):
                 value = change.get("value", {})
                 if "messages" in value:
+                    # Found a message! Now we wake up the Brain
                     message = value["messages"][0]
-                    recipient_id = message["from"]
+                    from_no = message["from"]
+                    user_text = message["text"]["body"]
                     
-                    if "text" in message:
-                        user_msg = message["text"]["body"]
-                        print(f"📩 WhatsApp Received: {user_msg}")
+                    print(f"📩 Waking Brain for message: {user_text}")
 
-                        # 🧠 This is what creates the 4-5 second delay you want!
-                        spark = get_spark()
-                        response_text = spark.think(user_msg)
+                    # 🧠 THIS IS THE KEY: Call your Spark Brain
+                    spark = get_spark()
+                    ai_reply = spark.think(user_text) # This creates the 4s delay
 
-                        # 🚀 This sends it back to your phone
-                        send_whatsapp_msg(recipient_id, response_text)
-                        print(f"✅ Reply Sent to {recipient_id}")
+                    # 🚀 Send the AI's reply back to the user
+                    send_whatsapp_msg(from_no, ai_reply)
+                    print(f"✅ Reply sent to {from_no}")
 
+    # Return 200 immediately so Meta doesn't get angry
     return "ok", 200
 
 # --- TELEGRAM WEBHOOK ---
