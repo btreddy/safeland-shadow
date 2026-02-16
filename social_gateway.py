@@ -39,52 +39,37 @@ def get_spark():
         spark = Brain(role_id="1") 
     return spark
 
-# --- WHATSAPP WEBHOOK ---
 @app.route("/whatsapp", methods=["GET", "POST"])
 def whatsapp_handler():
-    # Verification (For the Double Tick/Meta Verify)
     if request.method == "GET":
-        mode = request.args.get("hub.mode")
-        token = request.args.get("hub.verify_token")
-        challenge = request.args.get("hub.challenge")
-        
-        if mode == "subscribe" and token == VERIFY_TOKEN:
-            return challenge, 200
-        return "Verification failed", 403
+        # ... (Your existing verification logic is perfect)
+        return challenge, 200
 
-    # Message Processing
     data = request.get_json()
-    if data:
-        # Send 'ok' instantly to prevent Meta from retrying
-        try:
-            # Here you would extract the user message and phone number
-            # and call: spark.think(user_msg)
-            # then: send_whatsapp_msg(phone, response)
-            pass 
-        except Exception as e:
-            print(f"❌ WhatsApp Process Error: {e}")
+    
+    # Check if this is a real message and not just a status update
+    if data and "entry" in data:
+        for entry in data["entry"]:
+            for change in entry.get("changes", []):
+                value = change.get("value", {})
+                if "messages" in value:
+                    message = value["messages"][0]
+                    recipient_id = message["from"] # User's phone number
+                    
+                    # Extract the text body
+                    if "text" in message:
+                        user_msg = message["text"]["body"]
+                        print(f"📩 WhatsApp Received: {user_msg}")
+
+                        # 🧠 CALL THE BRAIN
+                        spark = get_spark()
+                        response_text = spark.think(user_msg)
+
+                        # 🚀 SEND REPLY
+                        send_whatsapp_msg(recipient_id, response_text)
+                        print(f"✅ WhatsApp Reply Sent to {recipient_id}")
 
     return "ok", 200
-
-def send_whatsapp_msg(recipient_id, text):
-    if not WHATSAPP_TOKEN:
-        print("❌ Cannot send WhatsApp message: Token missing.")
-        return
-
-    headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": recipient_id,
-        "type": "text",
-        "text": {"body": text}
-    }
-    try:
-        requests.post(WHATSAPP_URL, json=payload, headers=headers)
-    except Exception as e:
-        print(f"❌ WA Send Error: {e}")
 
 # --- TELEGRAM WEBHOOK ---
 @app.route("/telegram", methods=["POST"])
