@@ -5,8 +5,9 @@ from PIL import Image
 import os
 from dotenv import load_dotenv
 
-# 1. Force Local Environment Sync
-load_dotenv(override=True)
+# Only load .env if we are NOT on Google Cloud
+if not os.getenv("K_SERVICE"): 
+    load_dotenv(override=True)
 
 st.set_page_config(page_title="Safeland Console", layout="wide", page_icon="🎯")
 
