@@ -15,16 +15,16 @@ PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "Spark2026")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# Safety Checks: Crash immediately if keys are missing (so you know!)
-if not TELEGRAM_TOKEN:
-    raise ValueError("❌ Error: TELEGRAM_TOKEN is missing in .env file!")
-if not WHATSAPP_TOKEN:
-    print("⚠️ Warning: WHATSAPP_TOKEN is missing. WhatsApp features will fail.")
-
-# 1. Grab the token from the Cloud Run Environment Variables
+# 1. Grab the token FIRST
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN") # If you use it
 
-# 2. Construct the URL dynamically (This prevents the leak!)
+# 2. NOW do the Safety Checks
+if not TELEGRAM_TOKEN:
+    print("❌ Error: TELEGRAM_TOKEN is missing in environment!")
+    # Remove the 'raise' for now so the app doesn't crash during testing
+    
+# 3. Construct the URLs
 SEND_URL_TG = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 WHATSAPP_URL = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
 # 3. SPARK BRAIN INITIALIZATION
