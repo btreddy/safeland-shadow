@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 # Only load .env if we are NOT on Google Cloud
 if not os.getenv("K_SERVICE"): 
-    load_dotenv(override=True)
+    TELEGRAM_TOKEN = "8441547674:AAGgEWzrgwtwIkOH3HErCxq4qvUF2zIG4GY"
 
 st.set_page_config(page_title="Safeland Console", layout="wide", page_icon="🎯")
 
