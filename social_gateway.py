@@ -46,28 +46,25 @@ def whatsapp_handler():
         return challenge, 200
 
     data = request.get_json()
-    
-    # Check if this is a real message and not just a status update
     if data and "entry" in data:
         for entry in data["entry"]:
             for change in entry.get("changes", []):
                 value = change.get("value", {})
                 if "messages" in value:
                     message = value["messages"][0]
-                    recipient_id = message["from"] # User's phone number
+                    recipient_id = message["from"]
                     
-                    # Extract the text body
                     if "text" in message:
                         user_msg = message["text"]["body"]
                         print(f"📩 WhatsApp Received: {user_msg}")
 
-                        # 🧠 CALL THE BRAIN
+                        # 🧠 This is what creates the 4-5 second delay you want!
                         spark = get_spark()
                         response_text = spark.think(user_msg)
 
-                        # 🚀 SEND REPLY
+                        # 🚀 This sends it back to your phone
                         send_whatsapp_msg(recipient_id, response_text)
-                        print(f"✅ WhatsApp Reply Sent to {recipient_id}")
+                        print(f"✅ Reply Sent to {recipient_id}")
 
     return "ok", 200
 
