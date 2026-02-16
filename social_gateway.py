@@ -21,10 +21,12 @@ if not TELEGRAM_TOKEN:
 if not WHATSAPP_TOKEN:
     print("⚠️ Warning: WHATSAPP_TOKEN is missing. WhatsApp features will fail.")
 
-# Construct the URL dynamically (This prevents the leak!)
+# 1. Grab the token from the Cloud Run Environment Variables
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+# 2. Construct the URL dynamically (This prevents the leak!)
 SEND_URL_TG = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 WHATSAPP_URL = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
-
 # 3. SPARK BRAIN INITIALIZATION
 spark = None
 
